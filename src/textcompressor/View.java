@@ -10,16 +10,58 @@ import java.util.Scanner;
 public class View {
     
     private Scanner sc;
-    private Compressor compressor;
+    private LZ77Compressor lz77Comp;
+    private RiceCompressor riceComp;
 
     public View() {
         sc = new Scanner(System.in);   
-        compressor = new Compressor();
+        lz77Comp = new LZ77Compressor();
+        riceComp = new RiceCompressor();
     }
     
     public static void main(String args[]){
         View v = new View();
-        v.textCompressorMenu();
+        v.audioCompressorMenu();
+        //v.textCompressorMenu();
+        //v.lz77Menu();
+    }
+    
+    /**
+     * Mostra el menu per fitxers d'audio.
+     */    
+    private void audioCompressorMenu() {
+        String option; 
+        boolean exit = false;
+        while(!exit){
+            System.out.println("##################### MENU ########################"
+                            +"\n# 1.- Obtenir informacio de l'arxiu d'audio       #"
+                            +"\n# 2.- Comprimir l'arxiu 'data.wav'                #"
+                            +"\n# 3.- Sortir                                      #"
+                            +"\n###################################################");
+            System.out.print("-> ");
+            option = sc.nextLine();
+            
+            try {
+		int numero =  Integer.parseInt(option);
+                switch (numero) {
+                    case 1:
+                        displayInfo("src/resources/data.wav");
+                        break;
+                    case 2:
+                        audioCompressor("src/resources/data.wav");
+                        break;
+                    case 3:
+                        System.out.println("Fins aviat!");
+                        exit = true;
+                        break;
+                    default:
+                        System.out.println("Opcio incorrecte");
+                        break; 
+                }
+            } catch (NumberFormatException nfe){
+                System.out.println("Format incorrecte, has d'introduir numeros.");
+            } 
+        }
     }
     
     /**
@@ -113,17 +155,17 @@ public class View {
             System.out.print("Inserta la trama binaria per comprimir"
                             +"\n ->");
             data = sc.nextLine();
-            if(compressor.validateData(data)){
-                compressor.setOriginalData(data);
+            if(lz77Comp.validateData(data)){
+                lz77Comp.setOriginalData(data);
                 System.out.print("Inserta el tamany de la finestra d'entrada"
                                 +"\n ->");
                 inputWindow = Integer.parseInt(sc.nextLine());
                 System.out.print("Inserta el tamany de la finestra lliscant"
                                 +"\n ->");
                 slidingWindow = Integer.parseInt(sc.nextLine());
-                if(compressor.validateWindows(inputWindow, slidingWindow)){
-                    compressor.setInputWindow(inputWindow);
-                    compressor.setSlidingWindow(slidingWindow);
+                if(lz77Comp.validateWindows(inputWindow, slidingWindow)){
+                    lz77Comp.setInputWindow(inputWindow);
+                    lz77Comp.setSlidingWindow(slidingWindow);
                     showResults();
                 } else {
                     System.out.println("Tamany de les finestres incorrecte.");
@@ -141,9 +183,9 @@ public class View {
      * comprimir i descomprimir LZ77
      */
     private void randomTest(String data) {
-        compressor.setOriginalData(data);
-        compressor.setInputWindow(8);
-        compressor.setSlidingWindow(4);
+        lz77Comp.setOriginalData(data);
+        lz77Comp.setInputWindow(8);
+        lz77Comp.setSlidingWindow(4);
         showResults();
     }
     
@@ -152,21 +194,21 @@ public class View {
      * descomprimida, i l'efecte de compressio (Original/Comprimida). 
      */
     private void showResults(){
-        compressor.compressData();
-        compressor.decompressData();
-        System.out.println("     Trama original: " + compressor.getOriginalData());
-        System.out.println("   Trama comprimida: " + compressor.getCompressData());
-        System.out.println("Trama descomprimida: " + compressor.getDecompressData());
-        System.out.println("Efecte de compressio: " + ((float)compressor.getOriginalData().length()/(float)compressor.getCompressData().length()));
+        lz77Comp.compressData();
+        lz77Comp.decompressData();
+        System.out.println("     Trama original: " + lz77Comp.getOriginalData());
+        System.out.println("   Trama comprimida: " + lz77Comp.getCompressData());
+        System.out.println("Trama descomprimida: " + lz77Comp.getDecompressData());
+        System.out.println("Efecte de compressio: " + ((float)lz77Comp.getOriginalData().length()/(float)lz77Comp.getCompressData().length()));
     }
     
     /**
      * Mostra nomes l'efecte de compressio i el temps de compressio. 
      */
     private void showSummaryResults(){
-        compressor.compressData();
-        System.out.println("\tEfecte de compressio: " + ((float)compressor.getOriginalData().length()/(float)compressor.getCompressData().length()));
-        System.out.println("\tTemps de compressio: " + compressor.getCompressionTime() + " s");
+        lz77Comp.compressData();
+        System.out.println("\tEfecte de compressio: " + ((float)lz77Comp.getOriginalData().length()/(float)lz77Comp.getCompressData().length()));
+        System.out.println("\tTemps de compressio: " + lz77Comp.getCompressionTime() + " s");
     }
     
     /**
@@ -194,28 +236,28 @@ public class View {
             sizes[i] = n;
             n *= 2;
         }
-        double bestTime = 999.0, bestCompression = 0.0, bestAverage = 999.0;
+        double bestTime = Double.MAX_VALUE, bestCompression = 0.0, bestAverage = Double.MAX_VALUE;
         int slidingTime=0, inputTime=0, slidingCompression=0, inputCompression=0, slidingAverage=0, inputAverage=0;
-        compressor.setOriginalData(data);
+        lz77Comp.setOriginalData(data);
         for(int i=0; i<sizes.length; i++){
             for(int j=i; j<sizes.length; j++){
-                System.out.println("Entrada: " + sizes[i] + " Lliscant: " + sizes[j]);
-                compressor.setInputWindow(sizes[j]);
-                compressor.setSlidingWindow(sizes[i]);
-                if(compressor.validateWindows(sizes[j], sizes[i])) showSummaryResults();
+                //System.out.println("Entrada: " + sizes[i] + " Lliscant: " + sizes[j]);
+                lz77Comp.setInputWindow(sizes[j]);
+                lz77Comp.setSlidingWindow(sizes[i]);
+                if(lz77Comp.validateWindows(sizes[j], sizes[i])) showSummaryResults();
                 else System.out.println("Longitud de finestres incorrectes");
-                if(compressor.getCompressionTime() < bestTime){
-                    bestTime = compressor.getCompressionTime();
+                if(lz77Comp.getCompressionTime() < bestTime){
+                    bestTime = lz77Comp.getCompressionTime();
                     slidingTime = sizes[j];
                     inputTime = sizes[i];
                 }
-                float compression = ((float)compressor.getOriginalData().length()/(float)compressor.getCompressData().length());
+                float compression = ((float)lz77Comp.getOriginalData().length()/(float)lz77Comp.getCompressData().length());
                 if(compression > bestCompression){
                     bestCompression = compression;
                     slidingCompression = sizes[j];
                     inputCompression = sizes[i];
                 }
-                double average = (((float)1.0/compression)*0.5)+(compressor.getCompressionTime()*0.5);
+                double average = (((float)1.0/compression)*0.5)+(lz77Comp.getCompressionTime()*0.5);
                 if(average < bestAverage){
                     bestAverage = average;
                     slidingAverage = sizes[j];
@@ -223,10 +265,10 @@ public class View {
                 }
             }
         }
-        System.out.println("FINAL RESULTS: "
-                + "\n\tTime: " + bestTime + " Lliscant: " + slidingTime + " Entrada: " + inputTime
-                + "\n\tCompression: " + bestCompression + " Lliscant: " +slidingCompression + " Entrada: " + inputCompression
-                + "\n\tAverage: " + bestAverage + " Lliscant: " +slidingAverage + " Entrada: " + inputAverage);
+        System.out.println("Final results (Bests): "
+                + "\n\tTime: " + bestTime + " Sliding: " + slidingTime + " Input: " + inputTime
+                + "\n\tCompression: " + bestCompression + " Sliding: " +slidingCompression + " Input: " + inputCompression
+                + "\n\tAverage: " + bestAverage + " Sliding: " +slidingAverage + " Input: " + inputAverage);
     }
 
     /**
@@ -236,7 +278,78 @@ public class View {
      */
     private void textCompressor(String path) {
         String data = TxtReader.cargarTxt(path).toString();
-        if(compressor.validateData(data)) checkCompression(data);
+        if(lz77Comp.validateData(data)) checkCompression(data);
         else System.out.println("Trama erronia, ha de ser una trama binaria");
+    }
+
+    private void audioCompressor(String path) {
+        int[] array = WavReader.Wav2Array(path);
+        if(riceComp.getBestM() == 0) riceComp.displayInfo(array);
+        int bestM = riceComp.getBestM();
+        checkAudioCompression(array, bestM);
+    }
+    
+    private void checkAudioCompression(int[] data, int bestM) {  
+        testLZ77WindowsCompress(data, 0);
+        testLZ77WindowsCompress(data, bestM);
+    } 
+    
+    private void testLZ77WindowsCompress(int[] data, int bestM){
+        int[] sizes = new int[11];
+        int n = 4;
+        for(int i=0; i<sizes.length; i++) {
+            sizes[i] = n;
+            n *= 2;
+        }
+        String binaryData = "";
+        for(int num : data) binaryData = binaryData.concat(Integer.toBinaryString(num));
+        lz77Comp.setOriginalData(binaryData);
+        if(bestM != 0){
+            String riceData = "";
+            for(int i = 0; i < data.length; i++){
+                riceData = riceData.concat(riceComp.compress(bestM, data[i]));
+            }
+            lz77Comp.setOriginalData(riceData);
+        }
+        double bestCompression = 0.0;
+        int slidingCompression = 0, inputCompression = 0, bestSize = 0;
+        for(int i=0; i<sizes.length; i++){
+            for(int j=i; j<sizes.length; j++){
+                System.out.println("Input window: " + sizes[i] + " Sliding window: " + sizes[j]);
+                lz77Comp.setInputWindow(sizes[j]);
+                lz77Comp.setSlidingWindow(sizes[i]);
+                if(lz77Comp.validateWindows(sizes[j], sizes[i])){
+                    lz77Comp.compressData();
+                    System.out.println("\tSize compressed: " + lz77Comp.getCompressData().length() + " Compress ratio: " + (binaryData.length()/(float)lz77Comp.getCompressData().length()));
+                }else{
+                    System.out.println("Longitud de finestres incorrectes");
+                }
+                float compression = ((float)binaryData.length()/(float)lz77Comp.getCompressData().length());
+                if(compression > bestCompression){
+                    bestCompression = compression;
+                    bestSize = lz77Comp.getCompressData().length();
+                    slidingCompression = sizes[j];
+                    inputCompression = sizes[i];
+                }
+            }
+        }
+        if(bestM != 0){
+            System.out.println("Original frame size: " + binaryData.length());
+            System.out.println("========= Rice + LZ77 =========");
+            System.out.println("Final results (Bests): "
+                + "\n\tCompression ratio: " + bestCompression + "| Size: " + bestSize + "| Sliding window: " +slidingCompression + "| Input window: " + inputCompression);
+            System.out.println("===============================");
+        } else {
+            System.out.println("Original frame size: " + binaryData.length());
+            System.out.println("============ LZ77 =============");
+            System.out.println("Final results (Bests): "
+                + "\n\tCompression ratio: " + bestCompression + "| Size: " + bestSize + "| Sliding window: " +slidingCompression + "| Input window: " + inputCompression);
+            System.out.println("===============================");
+        }
+    }
+
+    private void displayInfo(String path) {
+        int[] Wav2Array = WavReader.Wav2Array(path);
+        riceComp.displayInfo(Wav2Array);
     }
 }

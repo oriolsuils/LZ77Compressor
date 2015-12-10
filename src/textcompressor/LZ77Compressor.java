@@ -9,7 +9,7 @@ import java.util.Arrays;
  *
  * @author Oriol
  */
-public class Compressor {
+public class LZ77Compressor {
     //La trama binaria de dades original
     private String originalData;
     //La trama comprimida
@@ -23,13 +23,13 @@ public class Compressor {
     private Long t0;
     private Long t1;
 
-    public Compressor(String data, int inputWindow, int slidingWindow) {
+    public LZ77Compressor(String data, int inputWindow, int slidingWindow) {
         this.originalData = data;
         this.inputWindow = inputWindow;
         this.slidingWindow = slidingWindow;
     }
 
-    public Compressor() {
+    public LZ77Compressor() {
         super();
         this.originalData = "";
         this.compressData = "";
