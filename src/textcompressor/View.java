@@ -20,12 +20,59 @@ public class View {
     }
     
     public static void main(String args[]){
-        View v = new View();
-        v.audioCompressorMenu();
-        //v.textCompressorMenu();
-        //v.lz77Menu();
+        new View().mainMenu();
     }
     
+    private void mainMenu() {
+        String option; 
+        boolean exit = false;
+        while(!exit){
+            System.out.println("######################### MENU ###########################"
+                            +"\n# 1.- Compressio LZ77 de bits aleatoris (Avcont4a)       #"
+                            +"\n# 2.- Compressio LZ77 d'arxius de text (Avcont4b)        #"
+                            +"\n# 3.- Compressio LZ77 d'arxius d'audio (Avcont4c)        #"
+                            +"\n# 4.- Compressio LZ77 d'imatges (Avcont4d)               #"
+                            +"\n# 5.- Sortir                                             #"
+                            +"\n##########################################################");
+            System.out.print("-> ");
+            option = sc.nextLine();
+            
+            try {
+		int numero =  Integer.parseInt(option);
+                switch (numero) {
+                    case 1:
+                        lz77Menu();
+                        break;
+                    case 2:
+                        textCompressorMenu();
+                        break;
+                    case 3:
+                        audioCompressorMenu();
+                        break;
+                    case 4:
+                        imageCompressor();
+                        break;
+                    case 5:
+                        System.out.println("Fins aviat!");
+                        exit = true;
+                        break;
+                    default:
+                        System.out.println("Opcio incorrecte");
+                        break; 
+                }
+            } catch (NumberFormatException nfe){
+                System.out.println("Format incorrecte, has d'introduir numeros.");
+            } 
+        }
+    }
+    
+    private void imageCompressor() {
+        int[] data = BmpReader.bmp2Array("src/resources/cubo_LZ77.bmp");
+        String binaryData = "";
+        for(int num : data) binaryData = binaryData.concat(Integer.toBinaryString(num));
+        checkCompression(binaryData);
+    }
+        
     /**
      * Mostra el menu per fitxers d'audio.
      */    
@@ -36,7 +83,7 @@ public class View {
             System.out.println("##################### MENU ########################"
                             +"\n# 1.- Obtenir informacio de l'arxiu d'audio       #"
                             +"\n# 2.- Comprimir l'arxiu 'data.wav'                #"
-                            +"\n# 3.- Sortir                                      #"
+                            +"\n# 3.- Tornar enrere                               #"
                             +"\n###################################################");
             System.out.print("-> ");
             option = sc.nextLine();
@@ -74,7 +121,7 @@ public class View {
             System.out.println("############# MENU ################"
                             +"\n# 1.- Comprimir Hamlet            #"
                             +"\n# 2.- Comprimir Quijote           #"
-                            +"\n# 3.- Sortir                      #"
+                            +"\n# 3.- Tornar enrere               #"
                             +"\n###################################");
             System.out.print("-> ");
             option = sc.nextLine();
@@ -113,7 +160,7 @@ public class View {
                             +"\n# 1.- Introduir manualment        #"
                             +"\n# 2.- Proba random de 25 digits   #"
                             +"\n# 3.- Comprobar compresio         #"
-                            +"\n# 4.- Sortir                      #"
+                            +"\n# 4.- Tornar enrere               #"
                             +"\n###################################");
             System.out.print("-> ");
             option = sc.nextLine();
@@ -241,7 +288,7 @@ public class View {
         lz77Comp.setOriginalData(data);
         for(int i=0; i<sizes.length; i++){
             for(int j=i; j<sizes.length; j++){
-                //System.out.println("Entrada: " + sizes[i] + " Lliscant: " + sizes[j]);
+                System.out.println("Entrada: " + sizes[i] + " Lliscant: " + sizes[j]);
                 lz77Comp.setInputWindow(sizes[j]);
                 lz77Comp.setSlidingWindow(sizes[i]);
                 if(lz77Comp.validateWindows(sizes[j], sizes[i])) showSummaryResults();
@@ -266,9 +313,10 @@ public class View {
             }
         }
         System.out.println("Final results (Bests): "
-                + "\n\tTime: " + bestTime + " Sliding: " + slidingTime + " Input: " + inputTime
-                + "\n\tCompression: " + bestCompression + " Sliding: " +slidingCompression + " Input: " + inputCompression
-                + "\n\tAverage: " + bestAverage + " Sliding: " +slidingAverage + " Input: " + inputAverage);
+                + "\n\tTime: " + bestTime + " Sliding window: " + slidingTime + " Input window: " + inputTime
+                + "\n\tCompression: " + bestCompression + " Sliding window: " +slidingCompression + " Input window: " + inputCompression
+                + "\n\tOriginal size (bits): " + data.length() + " Compressed size (bits): " + Math.round((double)data.length()/bestCompression)                
+                + "\n\tAverage (compression + time): " + bestAverage + " Sliding window: " +slidingAverage + " Input window: " + inputAverage);
     }
 
     /**

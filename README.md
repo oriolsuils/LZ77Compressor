@@ -1,3 +1,3 @@
-# LZ77 Compression
+# LZ77 Compressor
 
-Text and audio compressor with LZ77 and Rice algorithms. Developed in Java and Netbeans IDE 8.0.2.
+Text, audio and image compressor with LZ77 and Rice algorithms. Developed in Java and Netbeans IDE 8.0.2.
